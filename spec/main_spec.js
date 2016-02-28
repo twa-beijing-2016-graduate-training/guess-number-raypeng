@@ -12,6 +12,13 @@ var GuessingGame = require("../lib/main.js");
 describe("Guessing Game", function() {
 
   var engine = GuessingGame();
+  var spy_gen = sinon.spy(engine, "generate_random_number");
+  var spy_cmp = sinon.spy(engine, "compare_number");
+  var check_duplicate = function(num_string) {
+    var nums = num_string.split("");
+    var sorted = nums.sort();
+    return sorted[0] === sorted[1] || sorted[1] === sorted[2] || sorted[2] === sorted[3];
+  }
 
   describe(".compare_number", function() {
     it("should give correct result in form of xAxB", function() {
@@ -29,25 +36,43 @@ describe("Guessing Game", function() {
 
   describe(".generate_random_number", function() {
     it("should give random number comprised of 4 different digits", function() {
-      var check = function(num_string) {
-        var nums = num_string.split("");
-        var sorted = nums.sort();
-        return sorted[0] !== sorted[1] && sorted[1] !== sorted[2] && sorted[2] !== sorted[3];
-      }
       for (var i = 0; i < 100; i++) {
         var random_number = engine.generate_random_number();
-        expect(true).to.equal(check(random_number));
+        expect(false).to.equal(check_duplicate(random_number));
       }
     });
   });
 
   describe(".guess", function() {
     it("should invoke .compare_number and .generate_random_number", function() {
-      var spy_gen = sinon.spy(engine, "generate_random_number");
-      var spy_cmp = sinon.spy(engine, "compare_number");
       engine.guess("1234");
-      expect(spy_gen).to.have.been.calledOnce;
-      expect(spy_cmp).to.have.been.calledOnce;
+      expect(spy_gen).to.have.been.called;
+      expect(spy_cmp).to.have.been.called;
+    });
+  });
+
+  describe(".run_round", function() {
+    it("should show leftover chances", function() {
+      var response = engine.run_round("1234", 6, "4321");
+      expect("Please input your number(6):").to.equal(response.ask_input);
+    });
+    it("should show invoke .compare_number and give hint", function() {
+      var response = engine.run_round("1234", 6, "4321");
+      expect(spy_cmp).to.have.been.calledWith("1234", "4321");
+      expect("0A4B").to.equal(response.hint);
+    });
+    it("should show Congratulations when guess is correct", function() {
+      var response = engine.run_round("1234", 6, "1234");
+      expect(spy_cmp).to.have.been.calledWith("1234", "1234");
+      expect("Congratulations").to.equal(response.end_info);
+    });
+    it("should show Gave Over when no chance left", function() {
+      var response = engine.run_round("1234", 0, "1234");
+      expect("Game Over").to.equal(response.end_info);
+    });
+    it("should show error message when input is invalid", function() {
+      var response = engine.run_round("1234", 2, "1233");
+      expect("Cannot input duplicate numbers!").to.equal(response.err);
     });
   });
 
