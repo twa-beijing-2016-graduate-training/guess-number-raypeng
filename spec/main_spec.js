@@ -6,26 +6,27 @@ var sinonChai = require("sinon-chai");
 var expect = chai.expect;
 chai.use(sinonChai);
 
-var main = require("../lib/main.js");
+var GuessingGame = require("../lib/main.js");
 
 
-describe("测试描述", function(){
-    sinon.spy(console, 'log');
+describe("Guessing Game", function() {
 
-    it("测试用例1", function(){
+  var engine = GuessingGame();
 
-        var result = main();
-        var expect_string = '';
-        
-        expect(expect_string).to.equal(result);
+  describe(".compare_number", function() {
+
+    it("should give correct result in form of xAxB", function() {
+      expect("0A0B").to.equal(engine.compare_number("1234", "5678"));
+      expect("0A1B").to.equal(engine.compare_number("1234", "5671"));
+      expect("0A2B").to.equal(engine.compare_number("1234", "5621"));
+      expect("0A3B").to.equal(engine.compare_number("1234", "5321"));
+      expect("0A4B").to.equal(engine.compare_number("1234", "4321"));
+      expect("4A0B").to.equal(engine.compare_number("1234", "1234"));
+      expect("3A0B").to.equal(engine.compare_number("1234", "1238"));
+      expect("1A3B").to.equal(engine.compare_number("1234", "1111"));
+      expect("2A2B").to.equal(engine.compare_number("1234", "1243"));
     });
 
-    it("测试用例2", function(){
+  });
 
-        main();
-        var result = _.flatten(console.log.args).join("\n");
-        var expect_string = '';
-
-        expect(expect_string).to.equal(result);
-    });
 });
