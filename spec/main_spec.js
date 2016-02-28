@@ -41,4 +41,14 @@ describe("Guessing Game", function() {
     });
   });
 
+  describe(".guess", function() {
+    it("should invoke .compare_number and .generate_random_number", function() {
+      var spy_gen = sinon.spy(engine, "generate_random_number");
+      var spy_cmp = sinon.spy(engine, "compare_number");
+      engine.guess("1234");
+      expect(spy_gen).to.have.been.calledOnce;
+      expect(spy_cmp).to.have.been.calledOnce;
+    });
+  });
+
 });
